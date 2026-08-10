@@ -1,10 +1,24 @@
-export interface IEvent {
-    slug:string;
-    title:string;
-    location:string;
-    image:string;
-    date:string;
-    time:string;
+export interface IEventCardProps {
+  title: string;
+  slug: string;
+  description: string;
+  overview: string;
+  image: string;
+  venue: string;
+  location: string;
+  date: string;
+  time: string;
+  mode: string;
+  audience: string;
+  agenda: string[];
+  organizer: string;
+  tags: string[];
+  createdAt: Date;
+  updatedAt: Date;
+  bookings: string;
 }
 
-export interface IEventCardProps extends IEvent {};
+export interface IBookEventProps {
+  eventId: string;
+  slug: string;
+}

@@ -1,24 +1,8 @@
+import { IEventCardProps } from '@/types';
 import { Schema, model, models, Document } from 'mongoose';
 
 // TypeScript interface for Event document
-export interface IEvent extends Document {
-  title: string;
-  slug: string;
-  description: string;
-  overview: string;
-  image: string;
-  venue: string;
-  location: string;
-  date: string;
-  time: string;
-  mode: string;
-  audience: string;
-  agenda: string[];
-  organizer: string;
-  tags: string[];
-  createdAt: Date;
-  updatedAt: Date;
-}
+export interface IEvent extends Document, IEventCardProps {}
 
 const EventSchema = new Schema<IEvent>(
   {
@@ -27,6 +11,10 @@ const EventSchema = new Schema<IEvent>(
       required: [true, 'Title is required'],
       trim: true,
       maxlength: [100, 'Title cannot exceed 100 characters'],
+    },
+    bookings:{
+      type:String,
+      required:[true, 'Title is required']
     },
     slug: {
       type: String,

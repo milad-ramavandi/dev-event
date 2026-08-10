@@ -1,3 +1,4 @@
+import { IEvent } from "@/database/event.model";
 import { IEventCardProps } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
@@ -9,6 +10,17 @@ const EventCard = ({
   time,
   image,
   date,
+  organizer,
+  overview,
+  // overwrite,
+  mode,
+  audience,
+  agenda,
+  tags,
+  createdAt,
+  updatedAt,
+  venue,
+
 }: IEventCardProps) => {
   return (
     <Link href={`/events/${slug}`} id="event-card">
