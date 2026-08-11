@@ -24,7 +24,7 @@ const EventCard = ({
 }: IEventCardProps) => {
   return (
     <Link href={`/events/${slug}`} id="event-card">
-      <Image
+      <img
         src={image}
         alt={title}
         width={410}

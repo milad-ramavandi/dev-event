@@ -1,4 +1,7 @@
+import getSimilarEventsBySlug from "@/actions/event";
 import BookEvent from "@/components/BookEvent";
+import EventCard from "@/components/EventCard";
+import { IEvent } from "@/database/event.model";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 
@@ -39,8 +42,9 @@ const EventPage = async ({ params }: { params: Promise<{ slug: string }> }) => {
     audience,
     tags,
     organizer,
-    bookings
+    bookings,
   } = event;
+  const simillarEvents: IEvent[] = await getSimilarEventsBySlug(slug);
   return (
     <section id="event">
       <div className="header">
@@ -49,7 +53,7 @@ const EventPage = async ({ params }: { params: Promise<{ slug: string }> }) => {
       </div>
       <div className="details">
         <div className="content">
-          <Image
+          <img
             src={image}
             width={800}
             height={800}
@@ -145,6 +149,16 @@ const EventPage = async ({ params }: { params: Promise<{ slug: string }> }) => {
           </section>
         </aside>
       </div>
+      <section className="flex flex-col w-full gap-4 pt-20">
+        <h2>Similar Events</h2>
+        <div className="events">
+          {simillarEvents &&
+            simillarEvents.length > 0 &&
+            simillarEvents.map((item) => (
+              <EventCard key={item.title} {...item} />
+            ))}
+        </div>
+      </section>
     </section>
   );
 };
