@@ -5,6 +5,8 @@ import { IEvent } from "@/database/event.model";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 
+export const instant = false;
+
 const EventPage = async ({ params }: { params: Promise<{ slug: string }> }) => {
   const { slug } = await params;
   let event;
@@ -145,7 +147,7 @@ const EventPage = async ({ params }: { params: Promise<{ slug: string }> }) => {
               <p className="text-sm">Be the first to book your spot!</p>
             )}
 
-            <BookEvent eventId={event._id} slug={event.slug} />
+            <BookEvent eventId={event._id} />
           </section>
         </aside>
       </div>

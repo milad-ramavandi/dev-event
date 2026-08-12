@@ -18,7 +18,7 @@ const HomePage = async () => {
         Hackathons, Meetups, and Conferneces, All in One Place
       </p>
       <ExploreBtn />
-      <div className="mt-20 space-y-7">
+      <div className="mt-20 space-y-7" id="events">
         <h3>Featured Events</h3>
         <ul className="events">
           {events && events.length > 0 && events.map((event: IEvent) => (

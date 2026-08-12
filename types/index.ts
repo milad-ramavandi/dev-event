@@ -20,5 +20,8 @@ export interface IEventCardProps {
 
 export interface IBookEventProps {
   eventId: string;
-  slug: string;
+}
+
+export interface ICreateBookingProps extends IBookEventProps {
+  email:string
 }
