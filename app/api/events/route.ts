@@ -32,16 +32,39 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     await connectDB();
-    const events = await Event.find().sort({ createdAt: -1 });
-    return NextResponse.json(
-      { message: "Events fetched successfully", events },
-      { status: 200 },
-    );
+    const slug = req.nextUrl.searchParams.get("similar_events");
+    if (slug) {
+      try {
+        const event = await Event.findOne({ slug });
+        const similarEvents = await Event.find({
+          _id: { $ne: event._id },
+          tags: { $in: event.tags },
+        });
+        return NextResponse.json(
+        { message: "similar Events fetched successfully", similarEvents },
+        { status: 200 },
+      );
+      } catch (error) {
+        return NextResponse.json(
+          {
+            messahe: "Events fetching failed",
+            error: error instanceof Error ? error.message : "Unknown",
+          },
+          { status: 500 },
+        );
+      }
+    } else {
+      const events = await Event.find().sort({ createdAt: -1 });
+      return NextResponse.json(
+        { message: "Events fetched successfully", events },
+        { status: 200 },
+      );
+    }
   } catch (error) {
-    console.error(error)
+    console.error(error);
     return NextResponse.json(
       {
         messahe: "Events fetching failed",

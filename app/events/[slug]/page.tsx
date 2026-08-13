@@ -1,167 +1,91 @@
-import getSimilarEventsBySlug from "@/actions/event";
-import BookEvent from "@/components/BookEvent";
-import EventCard from "@/components/EventCard";
-import { IEvent } from "@/database/event.model";
-import Image from "next/image";
-import { notFound } from "next/navigation";
+import EventDetails from "@/components/EventDetails";
+import Loading from "@/components/Loading";
+import { Metadata } from "next";
+import { cacheLife } from "next/cache";
+import { Suspense } from "react";
 
-export const instant = false;
-
-const EventPage = async ({ params }: { params: Promise<{ slug: string }> }) => {
-  const { slug } = await params;
-  let event;
+const getEvent = async (slug: string) => {
+  "use cache";
+  cacheLife("hours");
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BASE_URL}api/events/${slug}`,
-      { next: { revalidate: 60 } },
     );
     if (!res.ok) {
-      if (res.status === 404) {
-        return notFound();
-      }
       throw new Error(`Failed to fetch event: ${res.statusText}`);
     }
-
     const data = await res.json();
-    event = data.event;
-
-    if (!event) {
-      return notFound();
-    }
+    return data.event;
   } catch (error) {
     console.error("Error fetching event:", error);
-    return notFound();
   }
+};
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+
+  const event = await getEvent(slug);
   const {
     description,
     image,
-    overview,
-    date,
-    time,
-    location,
-    mode,
-    agenda,
-    audience,
+    title,
     tags,
-    organizer,
-    bookings,
   } = event;
-  const simillarEvents: IEvent[] = await getSimilarEventsBySlug(slug);
-  return (
-    <section id="event">
-      <div className="header">
-        <h1>Event Description</h1>
-        <p>{description}</p>
-      </div>
-      <div className="details">
-        <div className="content">
-          <img
-            src={image}
-            width={800}
-            height={800}
-            className="banner"
-            alt="Event Banner"
-          />
-          <section className="flex-col-gap-2">
-            <h2>Overview</h2>
-            <p>{overview}</p>
-          </section>
-          <section className="flex-col-gap-2">
-            <h2>Event Details</h2>
-            <div className="flex-row-gap-2 items-center">
-              <Image
-                src={"/icons/calendar.svg"}
-                alt="calendar"
-                width={17}
-                height={17}
-              />
-              <p>{date}</p>
-            </div>
-            <div className="flex-row-gap-2 items-center">
-              <Image
-                src={"/icons/clock.svg"}
-                alt="time"
-                width={17}
-                height={17}
-              />
-              <p>{time}</p>
-            </div>
-            <div className="flex-row-gap-2 items-center">
-              <Image
-                src={"/icons/pin.svg"}
-                alt="location"
-                width={17}
-                height={17}
-              />
-              <p>{location}</p>
-            </div>
-            <div className="flex-row-gap-2 items-center">
-              <Image
-                src={"/icons/mode.svg"}
-                alt="mode"
-                width={17}
-                height={17}
-              />
-              <p>{mode}</p>
-            </div>
-            <div className="flex-row-gap-2 items-center">
-              <Image
-                src={"/icons/audience.svg"}
-                alt="audience"
-                width={17}
-                height={17}
-              />
-              <p>{audience}</p>
-            </div>
-          </section>
-          <section>
-            <div className="agenda">
-              <h2>Agenda</h2>
-              <ul>
-                {agenda.map((item: string) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </div>
-          </section>
-          <section className="flex-col-gap-2">
-            <h2>About to Organizer</h2>
-            <p>{organizer}</p>
-          </section>
-          <div className="flex gap-1.5 flex-wrap">
-            {tags.map((item: string) => (
-              <div className="pill" key={item}>
-                {item}
-              </div>
-            ))}
-          </div>
-        </div>
-        <aside className="booking">
-          <section className="signup-card">
-            <h2>Book Your Spot</h2>
-            {Number(bookings) > 0 ? (
-              <p className="text-sm">
-                Join {bookings} people who have already booked their spot!
-              </p>
-            ) : (
-              <p className="text-sm">Be the first to book your spot!</p>
-            )}
 
-            <BookEvent eventId={event._id} />
-          </section>
-        </aside>
-      </div>
-      <section className="flex flex-col w-full gap-4 pt-20">
-        <h2>Similar Events</h2>
-        <div className="events">
-          {simillarEvents &&
-            simillarEvents.length > 0 &&
-            simillarEvents.map((item) => (
-              <EventCard key={item.title} {...item} />
-            ))}
-        </div>
-      </section>
-    </section>
+  return {
+    title: title + " " + "Event Post | Website",
+    description:
+      description +
+      `Read ${title} on the  Website DevEvent. Stay updated with the latest Events.`,
+    keywords: tags.join(", "),
+    icons: [
+      { rel: "icon", url: "/favicon.ico", sizes: "any", type: "image/x-icon" },
+      { rel: "apple-touch-icon", url: "/apple-touch-icon.png" },
+      { rel: "shortcut icon", url: "/favicon.ico" },
+    ],
+    openGraph: {
+      title: title,
+      description:
+        description +
+        "Discover detailed events and updates from the  DevEvent team on various topics.",
+      url: `https://blogs-dusky-nu.vercel.app/${slug}`,
+      siteName: "blogs-dusky-nu.vercel.app",
+      images: [
+        {
+          url:image,
+          alt: title + "Event Image",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: title,
+      description:
+        description +
+        "Explore detailed articles and updates from the DevEvent team.",
+      images:
+        // parsedImages.images.length > 0
+        //   ? parsedImages.images[0]
+
+        //   :
+        ["https://blogs-dusky-nu.vercel.app/web3-crypto.jpg"],
+      site: "@Web3-Cryptosearch",
+    },
+    alternates: {
+      canonical: `https://blogs-dusky-nu.vercel.app/${slug}`,
+    },
+  };
+}
+
+const EventPage = async ({ params }: { params: Promise<{ slug: string }> }) => {
+  return (
+    <Suspense fallback={<Loading/>}>
+      <EventDetails params={params} getEvent={getEvent}/>
+    </Suspense>
   );
 };
 

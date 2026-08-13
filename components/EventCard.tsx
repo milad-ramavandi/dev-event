@@ -1,7 +1,7 @@
-import { IEvent } from "@/database/event.model";
 import { IEventCardProps } from "@/types";
-import Image from "next/image";
 import Link from "next/link";
+import ImageKit from "./ImageKit";
+import Image from "next/image";
 
 const EventCard = ({
   title,
@@ -24,7 +24,7 @@ const EventCard = ({
 }: IEventCardProps) => {
   return (
     <Link href={`/events/${slug}`} id="event-card">
-      <img
+      <ImageKit
         src={image}
         alt={title}
         width={410}
