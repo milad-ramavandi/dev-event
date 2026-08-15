@@ -1,6 +1,6 @@
 "use client";
 
-import createBooking from "@/actions";
+import createBooking from "@/actions/booking";
 import { IBookEventProps } from "@/types";
 import { SubmitEvent, useState } from "react";
 

@@ -22,6 +22,8 @@ export interface IBookEventProps {
   eventId: string;
 }
 
+export interface IActionsEventProps extends IBookEventProps {}
+
 export interface ICreateBookingProps extends IBookEventProps {
   email:string
 }

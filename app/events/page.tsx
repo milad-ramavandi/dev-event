@@ -1,12 +1,15 @@
+import ActionsEvent from "@/components/ActionsEvent";
 import ImageKit from "@/components/ImageKit";
 import { IEvent } from "@/database/event.model";
-import { cacheLife } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 
 const EventsPage = async () => {
   "use cache";
   cacheLife("days");
+  cacheTag("events");
   const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}api/events`);
   const { events } = await res.json();
+
   return (
     <section className="mt-15">
       <div className="flex flex-col gap-5 sm:flex-row sm:gap-0 items-center justify-between mb-18">
@@ -81,20 +84,7 @@ const EventsPage = async () => {
                     </td>
 
                     <td className="py-4 px-6 border border-x-[#182830] border-b-[#182830]">
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          className="font-semibold text-[16px] text-[#59DECA] cursor-pointer"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          className="font-semibold text-[16px] text-[#E7F2FF] cursor-pointer"
-                        >
-                          Delete
-                        </button>
-                      </div>
+                      <ActionsEvent eventId={String(item._id)}/>
                     </td>
                   </tr>
                 );
