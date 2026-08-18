@@ -134,6 +134,14 @@
   ul {
     @apply list-disc list-inside;
   }
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1) brightness(1);
+    cursor: pointer;
+  }
+  input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(1) brightness(1);
+    cursor: pointer;
+  }
 }
 
 @layer components {

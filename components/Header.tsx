@@ -13,9 +13,24 @@ const Header = () => {
           <p>DevEvent</p>
         </Link>
         <ul>
-          <Link href={"/"} className={`${pathname === "/" && "text-[#5dfeca] border-b-2 border-b-[#5dfeca]"}`}>Home</Link>
-          <Link href={"/events"} className={`${pathname === "/events" && "text-[#5dfeca] border-b-2 border-b-[#5dfeca]"}`}>Events</Link>
-          <Link href={"/create-event"} className={`${pathname === "/create-events" && "text-[#5dfeca] border-b-2 border-b-[#5dfeca]"}`}>Create Event</Link>
+          <Link
+            href={"/"}
+            className={`${pathname === "/" && "text-[#5dfeca] border-b-2 border-b-[#5dfeca]"}`}
+          >
+            Home
+          </Link>
+          <Link
+            href={"/events"}
+            className={`${pathname === "/events" && "text-[#5dfeca] border-b-2 border-b-[#5dfeca]"}`}
+          >
+            Events
+          </Link>
+          <Link
+            href={"/create-event"}
+            className={`${pathname === "/create-event" && "text-[#5dfeca] border-b-2 border-b-[#5dfeca]"}`}
+          >
+            Create Event
+          </Link>
         </ul>
       </nav>
     </header>

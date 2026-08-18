@@ -27,3 +27,10 @@ export interface IActionsEventProps extends IBookEventProps {}
 export interface ICreateBookingProps extends IBookEventProps {
   email:string
 }
+
+export interface IModalProps {
+  isOpen: boolean;
+  closeModal: () => void;
+  openModal: () => void;
+  children: React.ReactNode
+}
