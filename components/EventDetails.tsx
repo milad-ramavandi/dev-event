@@ -5,6 +5,7 @@ import BookEvent from "./BookEvent";
 import EventCard from "./EventCard";
 import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
+import { IEventCardProps } from "@/types";
 
 
 
@@ -163,7 +164,7 @@ const EventDetails = async ({
         <div className="events">
           {similarEvents &&
             similarEvents.length > 0 &&
-            similarEvents.map((item: IEvent) => (
+            similarEvents.map((item: IEventCardProps) => (
               <EventCard key={item.title} {...item} />
             ))}
         </div>

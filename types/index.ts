@@ -22,7 +22,9 @@ export interface IBookEventProps {
   eventId: string;
 }
 
-export interface IActionsEventProps extends IBookEventProps {}
+export interface IActionsEventProps extends IBookEventProps {
+  slug:string
+}
 
 export interface ICreateBookingProps extends IBookEventProps {
   email:string

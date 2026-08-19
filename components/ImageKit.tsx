@@ -10,22 +10,26 @@ const ImageKit = ({
   height,
   alt,
   className,
+  fill,
+  unoptimized
 }: {
   src: string;
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   alt: string;
   className?: string;
+  fill?: boolean;
+  unoptimized?:boolean
 }) => {
   const [showPlaceholder, setShowPlaceholder] = useState<boolean>(true);
   return (
     <Image
       urlEndpoint={URL_ENDPOINT}
       src={src}
-      width={width}
-      height={height}
+      {...(fill ? { fill } : { width, height })}
       alt={alt}
       className={className ? className : ""}
+      {...(unoptimized && {unoptimized})}
       loading="eager"
       style={
         showPlaceholder

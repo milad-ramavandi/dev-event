@@ -22,7 +22,7 @@ const HeaderEvents = () => {
       </div>
       {isOpen && (
         <Modal isOpen={isOpen} closeModal={closeModal} openModal={openModal}>
-            <FormEvent/>
+            <FormEvent mode="create"/>
         </Modal>
       )}
     </>

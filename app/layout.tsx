@@ -4,6 +4,7 @@ import "../styles/globals.css";
 import LightRays from "@/components/LightRays";
 import Header from "@/components/Header";
 import { Suspense } from "react";
+import { ToastContainer } from "react-toastify";
 
 const schibstedGrotesk = Schibsted_Grotesk({
   variable: "--font-schibsted-grotesk",
@@ -49,6 +50,7 @@ export default function RootLayout({
           />
         </div>
         <main>{children}</main>
+        <ToastContainer/>
       </body>
     </html>
   );

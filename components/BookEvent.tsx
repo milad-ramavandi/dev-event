@@ -2,27 +2,30 @@
 
 import createBooking from "@/actions/booking";
 import { IBookEventProps } from "@/types";
-import { SubmitEvent, useState } from "react";
+import { useFormik } from "formik";
+import { useState } from "react";
+import * as Yup from "yup";
 
 const BookEvent = ({ eventId }: IBookEventProps) => {
-  const [email, setEmail] = useState<string>("");
   const [submitted, setSubmitted] = useState<boolean>(false);
-
-  const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (email) {
-      const { success } = await createBooking({ eventId, email });
-
-      if (success) {
-        setSubmitted(true);
-      } else {
-        console.error("Booking creation failed");
-      }
-    } else {
-        alert("Please enter your email")
-    }
-  };
+  const { getFieldProps, errors, touched, isSubmitting, handleSubmit } =
+    useFormik({
+      initialValues: {
+        email: "",
+      },
+      validationSchema: Yup.object().shape({
+        email: Yup.string()
+          .email("Invalid Email")
+          .required("Email is required"),
+      }),
+      onSubmit: async (values) => {
+        const { email } = values;
+        const { success } = await createBooking({ eventId, email });
+        if (success) {
+          setSubmitted(true);
+        }
+      },
+    });
 
   return (
     <div id="book-event">
@@ -34,15 +37,18 @@ const BookEvent = ({ eventId }: IBookEventProps) => {
             <label htmlFor="email">Email Address</label>
             <input
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              {...getFieldProps("email")}
               id="email"
               placeholder="Enter your email address"
+              autoComplete="off"
             />
           </div>
+          {touched.email && errors.email && (
+            <p className="text-red-500 text-xs">{errors.email}</p>
+          )}
 
           <button type="submit" className="button-submit">
-            Submit
+            {isSubmitting ? "Loading..." : "Submit"}
           </button>
         </form>
       )}

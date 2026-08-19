@@ -75,7 +75,7 @@ const EventsPage = async () => {
                     </td>
 
                     <td className="py-4 px-6 border border-x-[#182830] border-b-[#182830]">
-                      <ActionsEvent eventId={String(item._id)}/>
+                      <ActionsEvent eventId={String(item._id)} slug={item.slug}/>
                     </td>
                   </tr>
                 );

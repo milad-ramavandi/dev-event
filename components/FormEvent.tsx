@@ -1,71 +1,122 @@
 "use client";
 import Image from "next/image";
-import { SubmitEvent, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Cloud from "./Cloud";
 import Xmark from "./Xmark";
 import { useFormik } from "formik";
-import * as Yup from "yup"
+import * as Yup from "yup";
+import { IEvent } from "@/database/event.model";
+import ImageKit from "./ImageKit";
 
-const FormEvent = () => {
+const FormEvent = ({
+  mode,
+  slug,
+}: {
+  mode: "create" | "edit";
+  slug?: string;
+}) => {
+  const [event, setEvent] = useState<IEvent | null>(null);
   const [inputDateType, setInputDateType] = useState<string>("text");
   const [inputTimeType, setInputTimeType] = useState<string>("text");
-  const [banner, setBanner] = useState<string>("");
   const fileRef = useRef<HTMLInputElement>(null);
-  const {values, getFieldProps, handleSubmit} = useFormik({
+  const {
+    values,
+    getFieldProps,
+    handleSubmit,
+    errors,
+    touched,
+    setFieldValue,
+    isSubmitting,
+  } = useFormik({
     initialValues: {
-      title:"",
-      date:"",
-      banner:"",
-      description:"",
-      tags:"",
-      location:"",
-      type:"",
-      time:""
-    }, 
-    validationSchema: Yup.object({
+      title: "",
+      date: "",
+      image: null,
+      description: "",
+      tags: "",
+      location: "",
+      mode: "",
+      time: "",
+    },
+    validationSchema: Yup.object().shape({
       title: Yup.string().required("Title is required"),
-      date: Yup.string().required("Title is required"),
-      banner: Yup.string().required("Title is required"),
-      description: Yup.string().required("Title is required"),
-      tags: Yup.string().required("Title is required"),
-      location: Yup.string().required("Title is required"),
-      type: Yup.string().required("Title is required"),
-      time: Yup.string().required("Title is required"),
+      date: Yup.string().required("Date is required"),
+      image: Yup.mixed<File>()
+        .nullable()
+        .test("validate size", "Size Must Be Max 1MB.", (value) => {
+          if (!value) {
+            return true;
+          }
+          return value.size <= 1 * 1024 * 1024;
+        })
+        .test(
+          "validate type",
+          "Format Must Be PNG,JPEG,JPG and WEBP",
+          (value) => {
+            if (!value) {
+              return true;
+            }
+            return [
+              "image/png",
+              "image/jpeg",
+              "image/jpg",
+              "image/webp",
+            ].includes(value.type);
+          },
+        )
+        .required("Banner is required"),
+      description: Yup.string().required("Description is required"),
+      tags: Yup.string().required("Tags is required"),
+      location: Yup.string().required("Location is required"),
+      type: Yup.string().required("Type is required"),
+      time: Yup.string().required("Time is required"),
     }),
     onSubmit: (values) => {
-      console.log(values)
-    }
-  })
+      console.log(values);
+    },
+  });
 
   const handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void = (
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    const reader = new FileReader();
-    if (e.target.files?.[0]) {
-      reader.readAsDataURL(e.target.files?.[0]);
+    const file = e.target.files?.[0];
+    if (file) {
+      setFieldValue("image", file);
     }
-    reader.onload = (readerEvent: ProgressEvent<FileReader>) => {
-      setBanner(readerEvent.target?.result as string);
-    };
+    e.target.value = "";
   };
   const handleOpenFileClick: () => void = () => fileRef.current?.click();
 
-  const submitFormHandler = (e: SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    // const event = {
-    //   title,
-    //   description,
-    //   banner,
-    //   time,
-    //   date,
-    //   tags: tags.split(","),
-    //   location,
-    //   type,
-    // };
-  };
+  useEffect(() => {
+    if (slug) {
+      (async () => {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}api/events/${slug}`,
+        );
+        if (!res.ok) {
+          throw new Error(`Failed to fetch event: ${res.statusText}`);
+        }
+        const { event } = await res.json();
+        setEvent(event);
+      })();
+    }
+  }, [slug]);
+
+  useEffect(() => {
+    if (mode === "edit" && event) {
+      setFieldValue("title", event.title);
+      setFieldValue("date", event.date);
+      setFieldValue("time", event.time);
+      setFieldValue("location", event.location);
+      setFieldValue("type", event.mode);
+      setFieldValue("image", event.image);
+      setFieldValue("tags", event.tags.join(", "));
+      setFieldValue("description", event.description);
+    }
+  }, [mode, event]);
   return (
     <form
-      onSubmit={submitFormHandler}
+      onSubmit={handleSubmit}
       className="w-full flex flex-col gap-6 md:w-175 rounded-[10px] p-7.5 border border-[#182830] bg-[#0D161A]"
     >
       <div className="flex flex-col gap-3">
@@ -80,6 +131,9 @@ const FormEvent = () => {
           className="rounded-xl border border-[#243B47] py-3 px-4.5 text-[#E7F2FF] placeholder:text-white outline-0"
           autoComplete="off"
         />
+        {touched.title && errors.title && (
+          <p className="text-red-500 text-xs">{errors.title}</p>
+        )}
       </div>
       <div className="flex flex-col gap-3">
         <label htmlFor="date" className="text-[16px] text-[#E7F2FF]">
@@ -110,6 +164,9 @@ const FormEvent = () => {
             className={`placeholder:text-white w-full h-full outline-0 py-3 ${inputDateType === "date" && "px-4.5"}`}
           />
         </div>
+        {touched.date && errors.date && (
+          <p className="text-red-500 text-xs">{errors.date}</p>
+        )}
       </div>
       <div className="flex flex-col gap-3">
         <label htmlFor="time" className="text-[16px] text-[#E7F2FF]">
@@ -140,6 +197,9 @@ const FormEvent = () => {
             className={`placeholder:text-white w-full h-full outline-0 py-3 ${inputTimeType === "time" && "px-4.5"}`}
           />
         </div>
+        {touched.time && errors.time && (
+          <p className="text-red-500 text-xs">{errors.time}</p>
+        )}
       </div>
       <div className="flex flex-col gap-3">
         <label htmlFor="location" className="text-[16px] text-[#E7F2FF]">
@@ -153,6 +213,9 @@ const FormEvent = () => {
           className="rounded-xl border border-[#243B47] py-3 px-4.5 text-[#E7F2FF] placeholder:text-white outline-0"
           autoComplete="off"
         />
+        {touched.location && errors.location && (
+          <p className="text-red-500 text-xs">{errors.location}</p>
+        )}
       </div>
       <div className="flex flex-col gap-3">
         <label htmlFor="type" className="text-[16px] text-[#E7F2FF]">
@@ -160,8 +223,8 @@ const FormEvent = () => {
         </label>
         <select
           className="rounded-xl border border-[#243B47] py-3 px-4.5 text-[#E7F2FF]"
-          id="type"
-          {...getFieldProps("type")}
+          id="mode"
+          {...getFieldProps("mode")}
         >
           <option value="" disabled>
             Select event type
@@ -172,6 +235,9 @@ const FormEvent = () => {
             </option>
           ))}
         </select>
+        {touched.mode && errors.mode && (
+          <p className="text-red-500 text-xs">{errors.mode}</p>
+        )}
       </div>
       <div className="flex flex-col gap-3">
         <label htmlFor="file" className="text-[16px] text-[#E7F2FF]">
@@ -186,16 +252,38 @@ const FormEvent = () => {
         </div>
         <input
           type="file"
-          name="file"
           className="hidden"
           ref={fileRef}
           onChange={handleImageChange}
         />
-        {banner && (
-          <div className="relative w-full h-50">
-            <Xmark onClick={() => setBanner("")} className="absolute top-1 left-1 z-50 animate-bounce"/>
-            <Image src={banner} fill alt="banner" className="object-cover rounded-lg"/>
+        {values.image && (
+          <div className="flex flex-col gap-3">
+            <Xmark
+              onClick={() => {
+                setFieldValue("image", null);
+              }}
+            />
+            <div className="relative w-full h-50">
+              {typeof values.image === "string" ? (
+                <ImageKit
+                  src={values.image}
+                  fill
+                  alt="banner"
+                  className="absolute object-cover rounded-lg"
+                />
+              ) : (
+                <Image
+                  src={URL.createObjectURL(values.image)}
+                  fill
+                  alt="banner"
+                  className="absolute object-cover rounded-lg"
+                />
+              )}
+            </div>
           </div>
+        )}
+        {touched.image && errors.image && (
+          <p className="text-red-500 text-xs">{errors.image}</p>
         )}
       </div>
       <div className="flex flex-col gap-3">
@@ -210,6 +298,9 @@ const FormEvent = () => {
           className="rounded-xl border border-[#243B47] py-3 px-4.5 text-[#E7F2FF] placeholder:text-white outline-0"
           autoComplete="off"
         />
+        {touched.tags && errors.tags && (
+          <p className="text-red-500 text-xs">{errors.tags}</p>
+        )}
       </div>
       <div className="flex flex-col gap-3">
         <label htmlFor="description" className="text-[16px] text-[#E7F2FF]">
@@ -221,12 +312,19 @@ const FormEvent = () => {
           placeholder="Briefly describe the event"
           className="rounded-xl border border-[#243B47] py-3 px-4.5 text-[#E7F2FF] placeholder:text-white outline-0"
         />
+        {touched.description && errors.description && (
+          <p className="text-red-500 text-xs">{errors.description}</p>
+        )}
       </div>
       <button
         type="submit"
         className="w-full px-4.5 py-2.5 bg-[#59DECA] rounded-xl text-black text-lg cursor-pointer"
       >
-        Add New Event
+        {isSubmitting
+          ? "Loading..."
+          : mode === "create"
+            ? "Add New Event"
+            : "Edit Event"}
       </button>
     </form>
   );
