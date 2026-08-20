@@ -64,7 +64,7 @@ const EventDetails = async ({
       <div className="details">
         <div className="content">
           <ImageKit
-            src={image}
+            src={image as string}
             width={800}
             height={800}
             className="banner"
@@ -110,7 +110,7 @@ const EventDetails = async ({
                 width={17}
                 height={17}
               />
-              <p>{mode}</p>
+              <p>{mode[0].toUpperCase() + mode.slice(1)}</p>
             </div>
             <div className="flex-row-gap-2 items-center">
               <Image
@@ -126,7 +126,7 @@ const EventDetails = async ({
             <div className="agenda">
               <h2>Agenda</h2>
               <ul>
-                {agenda.map((item: string) => (
+                {agenda?.map((item: string) => (
                   <li key={item}>{item}</li>
                 ))}
               </ul>
@@ -137,7 +137,7 @@ const EventDetails = async ({
             <p>{organizer}</p>
           </section>
           <div className="flex gap-1.5 flex-wrap">
-            {tags.map((item: string) => (
+            {!(typeof tags === "string") && tags?.map((item: string) => (
               <div className="pill" key={item}>
                 {item}
               </div>

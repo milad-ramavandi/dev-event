@@ -13,7 +13,7 @@ const EventsPage = async () => {
 
   return (
     <section className="mt-15">
-      <HeaderEvents/>
+      <HeaderEvents />
       <div className="overflow-x-scroll">
         <table className="w-full bg-[#0D161A] overflow-hidden rounded-t-[10px]">
           <thead className="text-left">
@@ -48,14 +48,15 @@ const EventsPage = async () => {
                     className="border border-x-[#182830] border-b-[#182830]"
                   >
                     <td className="py-4 px-6 border border-x-[#182830] border-b-[#182830]">
-                      <div className="flex gap-2">
-                        <ImageKit
-                          src={item.image}
-                          width={40}
-                          height={40}
-                          alt={item.title}
-                          className="rounded-lg"
-                        />
+                      <div className="flex gap-2 items-center">
+                        <div className="relative w-10 h-10">
+                          <ImageKit
+                            src={item.image as string}
+                            fill
+                            alt={item.title}
+                            className="rounded-lg object-cover"
+                          />
+                        </div>
                         <p className="font-semibold text-lg text-nowrap">
                           {item.title}
                         </p>
@@ -75,7 +76,10 @@ const EventsPage = async () => {
                     </td>
 
                     <td className="py-4 px-6 border border-x-[#182830] border-b-[#182830]">
-                      <ActionsEvent eventId={String(item._id)} slug={item.slug}/>
+                      <ActionsEvent
+                        eventId={String(item._id)}
+                        slug={item.slug as string}
+                      />
                     </td>
                   </tr>
                 );

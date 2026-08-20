@@ -5,17 +5,18 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     await connectDB();
-    const formData = (await req.formData()).entries();
-    let event;
-    try {
-      event = Object.fromEntries(formData);
-    } catch (error) {
-      return NextResponse.json(
-        { message: "Invalid JSON data format" },
-        { status: 400 },
-      );
-    }
-    const createdEvent = Event.create(event);
+    const body = await req.json();
+    console.log(body)
+    // let event;
+    // try {
+    //   event = Object.fromEntries(formData);
+    // } catch (error) {
+    //   return NextResponse.json(
+    //     { message: "Invalid JSON data format" },
+    //     { status: 400 },
+    //   );
+    // }
+    const createdEvent = await Event.create(body);
     return NextResponse.json(
       { message: "Event created successfully", event: createdEvent },
       { status: 201 },

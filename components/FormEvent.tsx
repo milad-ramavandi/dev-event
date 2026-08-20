@@ -7,13 +7,43 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { IEvent } from "@/database/event.model";
 import ImageKit from "./ImageKit";
+import { toast } from "react-toastify";
+import { createEventAction, editEventAction } from "@/actions/event";
+import {
+  upload,
+  ImageKitInvalidRequestError,
+  ImageKitServerError,
+  ImageKitUploadNetworkError,
+  ImageKitAbortError,
+} from "@imagekit/next";
+
+const uploadImage = async (file: File): Promise<string> => {
+  const authRes = await fetch("/api/upload-auth");
+  if (!authRes.ok) {
+    throw new Error("Failed to get upload authentication");
+  }
+  const { token, expire, signature, publicKey } = await authRes.json();
+
+  const uploadResponse = await upload({
+    file,
+    fileName: file.name,
+    token,
+    expire,
+    signature,
+    publicKey,
+  });
+
+  return uploadResponse.url as string;
+};
 
 const FormEvent = ({
   mode,
   slug,
+  closeModal
 }: {
   mode: "create" | "edit";
   slug?: string;
+  closeModal?: () => void
 }) => {
   const [event, setEvent] = useState<IEvent | null>(null);
   const [inputDateType, setInputDateType] = useState<string>("text");
@@ -41,38 +71,69 @@ const FormEvent = ({
     validationSchema: Yup.object().shape({
       title: Yup.string().required("Title is required"),
       date: Yup.string().required("Date is required"),
-      image: Yup.mixed<File>()
+      image: Yup.mixed()
         .nullable()
         .test("validate size", "Size Must Be Max 1MB.", (value) => {
-          if (!value) {
-            return true;
-          }
-          return value.size <= 1 * 1024 * 1024;
+          if (!value || typeof value === "string") return true;
+          return (value as File).size <= 1 * 1024 * 1024;
         })
         .test(
           "validate type",
           "Format Must Be PNG,JPEG,JPG and WEBP",
           (value) => {
-            if (!value) {
-              return true;
-            }
+            if (!value || typeof value === "string") return true;
             return [
               "image/png",
               "image/jpeg",
               "image/jpg",
               "image/webp",
-            ].includes(value.type);
+            ].includes((value as File).type);
           },
         )
         .required("Banner is required"),
       description: Yup.string().required("Description is required"),
       tags: Yup.string().required("Tags is required"),
       location: Yup.string().required("Location is required"),
-      type: Yup.string().required("Type is required"),
+      mode: Yup.string().required("Type is required"),
       time: Yup.string().required("Time is required"),
     }),
-    onSubmit: (values) => {
-      console.log(values);
+    onSubmit: async (values) => {
+      try {
+        let imageUrl = values.image as unknown as string;
+        if (values.image && typeof values.image !== "string") {
+          imageUrl = await uploadImage(values.image as unknown as File);
+        }
+
+        const payload = { ...values, image: imageUrl };
+
+        if (mode === "edit") {
+          await toast.promise(editEventAction(String(event?._id), payload), {
+            pending: "Editting Event...",
+            success: "Edit Event Successfully",
+            error: "Edit Event Failed",
+          });
+        } else {
+          await toast.promise(createEventAction(payload), {
+            pending: "Creating Event...",
+            success: "Create Event Successfully",
+            error: "Create Event Failed",
+          });
+        }
+        closeModal?.();
+      } catch (error) {
+        if (error instanceof ImageKitInvalidRequestError) {
+          toast.error(`Invalid image: ${error.message}`);
+        } else if (error instanceof ImageKitUploadNetworkError) {
+          toast.error("Network error while uploading image");
+        } else if (error instanceof ImageKitServerError) {
+          toast.error("ImageKit server error");
+        } else if (error instanceof ImageKitAbortError) {
+          toast.error("Image upload was cancelled");
+        } else {
+          toast.error("Something went wrong");
+          console.error(error);
+        }
+      }
     },
   });
 
@@ -108,9 +169,9 @@ const FormEvent = ({
       setFieldValue("date", event.date);
       setFieldValue("time", event.time);
       setFieldValue("location", event.location);
-      setFieldValue("type", event.mode);
+      setFieldValue("mode", event.mode);
       setFieldValue("image", event.image);
-      setFieldValue("tags", event.tags.join(", "));
+      setFieldValue("tags", typeof event.tags === "string" ? event.tags : event.tags.join(", "));
       setFieldValue("description", event.description);
     }
   }, [mode, event]);
@@ -229,9 +290,9 @@ const FormEvent = ({
           <option value="" disabled>
             Select event type
           </option>
-          {["Online", "Offline", "Hybrid"].map((item, idx) => (
+          {["online", "offline", "hybrid"].map((item, idx) => (
             <option key={idx} value={item}>
-              {item}
+              {item[0].toUpperCase() + item.slice(1)}
             </option>
           ))}
         </select>
@@ -265,6 +326,7 @@ const FormEvent = ({
             />
             <div className="relative w-full h-50">
               {typeof values.image === "string" ? (
+                // Show Remote Image
                 <ImageKit
                   src={values.image}
                   fill
@@ -272,6 +334,7 @@ const FormEvent = ({
                   className="absolute object-cover rounded-lg"
                 />
               ) : (
+                // Show Local Image
                 <Image
                   src={URL.createObjectURL(values.image)}
                   fill
@@ -318,7 +381,8 @@ const FormEvent = ({
       </div>
       <button
         type="submit"
-        className="w-full px-4.5 py-2.5 bg-[#59DECA] rounded-xl text-black text-lg cursor-pointer"
+        className={`w-full px-4.5 py-2.5 bg-[#59DECA] rounded-xl text-black text-lg cursor-pointer ${isSubmitting && "disabled:opacity-50 pointer-events-none"}`}
+        disabled={isSubmitting}
       >
         {isSubmitting
           ? "Loading..."

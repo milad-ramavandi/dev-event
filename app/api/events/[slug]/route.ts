@@ -115,3 +115,40 @@ export const DELETE = async (
     );
   }
 };
+
+export const PUT = async (
+  req: NextRequest,
+  { params }: { params: Promise<{ slug: string }> },
+) => {
+  try {
+    await connectDB();
+    const { slug } = await params;
+    if (!slug) {
+      return NextResponse.json({ message: "Invalid Input" }, { status: 400 });
+    }
+    const body = await req.json();
+    const editedEvent = await Event.findByIdAndUpdate(
+      slug,
+      { $set: body },
+      { new: true, runValidators: true },
+    );
+    if (!editedEvent) {
+      return NextResponse.json({ message: "Event Not Found" }, { status: 404 });
+    }
+    return NextResponse.json(
+      { message: "Event updated successfully", event: editedEvent },
+      { status: 200 },
+    );
+  } catch (error) {
+    return NextResponse.json(
+      {
+        message: "Failed to Edit Event",
+        error:
+          error instanceof Error
+            ? error.message
+            : "An Unexpected Error Occurred",
+      },
+      { status: 500 },
+    );
+  }
+};

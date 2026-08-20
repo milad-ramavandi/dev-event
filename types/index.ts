@@ -1,21 +1,21 @@
 export interface IEventCardProps {
   title: string;
-  slug: string;
+  slug?: string;
   description: string;
-  overview: string;
-  image: string;
-  venue: string;
+  overview?: string;
+  image: string | null;
+  venue?: string;
   location: string;
   date: string;
   time: string;
   mode: string;
-  audience: string;
-  agenda: string[];
-  organizer: string;
-  tags: string[];
-  createdAt: Date;
-  updatedAt: Date;
-  bookings: string;
+  audience?: string;
+  agenda?: string[];
+  organizer?: string;
+  tags: string[] | string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  bookings?: string;
 }
 
 export interface IBookEventProps {

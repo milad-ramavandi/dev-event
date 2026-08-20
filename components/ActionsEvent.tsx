@@ -10,12 +10,11 @@ import FormEvent from "./FormEvent";
 const ActionsEvent = ({ eventId, slug }: IActionsEventProps) => {
   const { isOpen, openModal, closeModal } = useModal();
   const deleteEventHandler = async (eventId: string) => {
-    const { success } = await deleteEventAction(eventId);
-    if (success) {
-      toast.success("Delete Event Successfully");
-    } else {
-      toast.error("Delete Event Has Error");
-    }
+    await toast.promise(deleteEventAction(eventId), {
+      pending: "Deleting Event...",
+      success: "Delete Event Successfully",
+      error: "Edit Event Was Failed",
+    });
   };
 
   return (
@@ -38,7 +37,7 @@ const ActionsEvent = ({ eventId, slug }: IActionsEventProps) => {
       </div>
       {isOpen && (
         <Modal isOpen={isOpen} openModal={openModal} closeModal={closeModal}>
-          <FormEvent mode="edit" slug={slug}/>
+          <FormEvent mode="edit" slug={slug} closeModal={closeModal}/>
         </Modal>
       )}
     </>
