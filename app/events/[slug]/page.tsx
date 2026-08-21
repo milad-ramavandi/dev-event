@@ -1,11 +1,12 @@
 import EventDetails from "@/components/EventDetails";
 import Loading from "@/components/Loading";
 import { Metadata } from "next";
-import { cacheLife } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import { Suspense } from "react";
 
 const getEvent = async (slug: string) => {
   "use cache";
+  cacheTag(`events/${slug}`)
   cacheLife("hours");
   try {
     const res = await fetch(

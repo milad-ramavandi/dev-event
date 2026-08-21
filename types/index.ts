@@ -12,10 +12,23 @@ export interface IEventCardProps {
   audience?: string;
   agenda?: string[];
   organizer?: string;
-  tags: string[] | string;
+  tags: string[];
   createdAt?: Date;
   updatedAt?: Date;
   bookings?: string;
+}
+
+export interface IFormValues {
+  title: string;
+  slug: string;
+  description: string;
+  image: string | null;
+  location: string;
+  date: string;
+  time: string;
+  mode: string;
+  tags: string;
+  bookings: string;
 }
 
 export interface IBookEventProps {

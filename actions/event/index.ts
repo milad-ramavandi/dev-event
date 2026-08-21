@@ -1,5 +1,5 @@
 "use server";
-import { IEventCardProps } from "@/types";
+import { IEventCardProps, IFormValues } from "@/types";
 import { updateTag } from "next/cache";
 
 export const deleteEventAction = async (eventId: string) => {
@@ -20,6 +20,7 @@ export const deleteEventAction = async (eventId: string) => {
 };
 
 export const editEventAction = async (
+  slug:string,
   eventId: string,
   event: IEventCardProps,
 ) => {
@@ -43,6 +44,7 @@ export const editEventAction = async (
     }
 
     updateTag("events");
+    updateTag(`events/${slug}`);
   } catch (error) {
     console.error(error);
     throw error

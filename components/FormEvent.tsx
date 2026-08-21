@@ -1,180 +1,35 @@
 "use client";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
 import Cloud from "./Cloud";
 import Xmark from "./Xmark";
-import { useFormik } from "formik";
-import * as Yup from "yup";
-import { IEvent } from "@/database/event.model";
 import ImageKit from "./ImageKit";
-import { toast } from "react-toastify";
-import { createEventAction, editEventAction } from "@/actions/event";
-import {
-  upload,
-  ImageKitInvalidRequestError,
-  ImageKitServerError,
-  ImageKitUploadNetworkError,
-  ImageKitAbortError,
-} from "@imagekit/next";
-
-const uploadImage = async (file: File): Promise<string> => {
-  const authRes = await fetch("/api/upload-auth");
-  if (!authRes.ok) {
-    throw new Error("Failed to get upload authentication");
-  }
-  const { token, expire, signature, publicKey } = await authRes.json();
-
-  const uploadResponse = await upload({
-    file,
-    fileName: file.name,
-    token,
-    expire,
-    signature,
-    publicKey,
-  });
-
-  return uploadResponse.url as string;
-};
+import useFormEvent from "@/hooks/useFormEvent";
 
 const FormEvent = ({
   mode,
   slug,
-  closeModal
+  closeModal,
 }: {
   mode: "create" | "edit";
   slug?: string;
-  closeModal?: () => void
+  closeModal?: () => void;
 }) => {
-  const [event, setEvent] = useState<IEvent | null>(null);
-  const [inputDateType, setInputDateType] = useState<string>("text");
-  const [inputTimeType, setInputTimeType] = useState<string>("text");
-  const fileRef = useRef<HTMLInputElement>(null);
   const {
+    inputDateType,
+    inputTimeType,
+    setInputDateType,
+    setInputTimeType,
+    fileRef,
     values,
     getFieldProps,
-    handleSubmit,
-    errors,
-    touched,
     setFieldValue,
+    handleSubmit,
+    touched,
+    errors,
     isSubmitting,
-  } = useFormik({
-    initialValues: {
-      title: "",
-      date: "",
-      image: null,
-      description: "",
-      tags: "",
-      location: "",
-      mode: "",
-      time: "",
-    },
-    validationSchema: Yup.object().shape({
-      title: Yup.string().required("Title is required"),
-      date: Yup.string().required("Date is required"),
-      image: Yup.mixed()
-        .nullable()
-        .test("validate size", "Size Must Be Max 1MB.", (value) => {
-          if (!value || typeof value === "string") return true;
-          return (value as File).size <= 1 * 1024 * 1024;
-        })
-        .test(
-          "validate type",
-          "Format Must Be PNG,JPEG,JPG and WEBP",
-          (value) => {
-            if (!value || typeof value === "string") return true;
-            return [
-              "image/png",
-              "image/jpeg",
-              "image/jpg",
-              "image/webp",
-            ].includes((value as File).type);
-          },
-        )
-        .required("Banner is required"),
-      description: Yup.string().required("Description is required"),
-      tags: Yup.string().required("Tags is required"),
-      location: Yup.string().required("Location is required"),
-      mode: Yup.string().required("Type is required"),
-      time: Yup.string().required("Time is required"),
-    }),
-    onSubmit: async (values) => {
-      try {
-        let imageUrl = values.image as unknown as string;
-        if (values.image && typeof values.image !== "string") {
-          imageUrl = await uploadImage(values.image as unknown as File);
-        }
-
-        const payload = { ...values, image: imageUrl };
-
-        if (mode === "edit") {
-          await toast.promise(editEventAction(String(event?._id), payload), {
-            pending: "Editting Event...",
-            success: "Edit Event Successfully",
-            error: "Edit Event Failed",
-          });
-        } else {
-          await toast.promise(createEventAction(payload), {
-            pending: "Creating Event...",
-            success: "Create Event Successfully",
-            error: "Create Event Failed",
-          });
-        }
-        closeModal?.();
-      } catch (error) {
-        if (error instanceof ImageKitInvalidRequestError) {
-          toast.error(`Invalid image: ${error.message}`);
-        } else if (error instanceof ImageKitUploadNetworkError) {
-          toast.error("Network error while uploading image");
-        } else if (error instanceof ImageKitServerError) {
-          toast.error("ImageKit server error");
-        } else if (error instanceof ImageKitAbortError) {
-          toast.error("Image upload was cancelled");
-        } else {
-          toast.error("Something went wrong");
-          console.error(error);
-        }
-      }
-    },
-  });
-
-  const handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setFieldValue("image", file);
-    }
-    e.target.value = "";
-  };
-  const handleOpenFileClick: () => void = () => fileRef.current?.click();
-
-  useEffect(() => {
-    if (slug) {
-      (async () => {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}api/events/${slug}`,
-        );
-        if (!res.ok) {
-          throw new Error(`Failed to fetch event: ${res.statusText}`);
-        }
-        const { event } = await res.json();
-        setEvent(event);
-      })();
-    }
-  }, [slug]);
-
-  useEffect(() => {
-    if (mode === "edit" && event) {
-      setFieldValue("title", event.title);
-      setFieldValue("date", event.date);
-      setFieldValue("time", event.time);
-      setFieldValue("location", event.location);
-      setFieldValue("mode", event.mode);
-      setFieldValue("image", event.image);
-      setFieldValue("tags", typeof event.tags === "string" ? event.tags : event.tags.join(", "));
-      setFieldValue("description", event.description);
-    }
-  }, [mode, event]);
+    handleImageChange,
+    handleOpenFileClick,
+  } = useFormEvent(mode, slug as string, closeModal);
   return (
     <form
       onSubmit={handleSubmit}
