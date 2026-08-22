@@ -1,7 +1,7 @@
 "use server";
 
 import Booking from "@/database/booking.model";
-import connectDB from "@/lib/mongoDB";
+import connectDB from "@/lib/mongodb";
 import { ICreateBookingProps } from "@/types";
 
 const createBooking = async ({ eventId, email }: ICreateBookingProps) => {
