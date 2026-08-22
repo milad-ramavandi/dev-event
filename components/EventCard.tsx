@@ -10,44 +10,47 @@ const EventCard = ({
   time,
   image,
   date,
-  organizer,
-  overview,
-  // overwrite,
-  mode,
-  audience,
-  agenda,
-  tags,
-  createdAt,
-  updatedAt,
-  venue,
-
 }: IEventCardProps) => {
   return (
     <Link href={`/events/${slug}`} id="event-card">
-      <ImageKit
-        src={image}
-        alt={title}
-        width={410}
-        height={300}
-        className="poster"
-      />
-      <div className="flex gap-2">
-        <Image src={"/icons/pin.svg"} width={14} height={14} alt="location" />
+      <div className="relative w-full h-75 rounded-lg overflow-hidden">
+        <ImageKit
+          src={image as string}
+          alt={title}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        />
+      </div>
+      <div className="flex gap-2 items-center">
+        <Image
+          src={"/icons/pin.svg"}
+          width={14}
+          height={14}
+          alt="location"
+          className="w-3.5 h-3.5"
+        />
         <p>{location}</p>
       </div>
       <p className="title">{title}</p>
       <div className="datetime">
-        <div>
+        <div className="flex items-center">
           <Image
             src={"/icons/calendar.svg"}
             width={14}
             height={14}
             alt="date"
+            className="w-3.5 h-3.5"
           />
           <p>{date}</p>
         </div>
-        <div>
-          <Image src={"/icons/clock.svg"} width={14} height={14} alt="time" />
+        <div className="flex items-center">
+          <Image
+            src={"/icons/clock.svg"}
+            width={14}
+            height={14}
+            alt="time"
+            className="w-3.5 h-3.5"
+          />
           <p>{time}</p>
         </div>
       </div>

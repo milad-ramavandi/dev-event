@@ -11,7 +11,8 @@ const ImageKit = ({
   alt,
   className,
   fill,
-  unoptimized
+  unoptimized,
+  sizes
 }: {
   src: string;
   width?: number;
@@ -19,7 +20,8 @@ const ImageKit = ({
   alt: string;
   className?: string;
   fill?: boolean;
-  unoptimized?:boolean
+  unoptimized?:boolean;
+  sizes?:string
 }) => {
   const [showPlaceholder, setShowPlaceholder] = useState<boolean>(true);
   return (
@@ -31,6 +33,7 @@ const ImageKit = ({
       className={className ? className : ""}
       {...(unoptimized && {unoptimized})}
       loading="eager"
+      sizes={sizes}
       style={
         showPlaceholder
           ? {

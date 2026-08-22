@@ -5,7 +5,6 @@ import { useFormik } from "formik";
 import React, { useEffect, useRef, useState } from "react";
 import * as Yup from "yup";
 import {
-  upload,
   ImageKitInvalidRequestError,
   ImageKitServerError,
   ImageKitUploadNetworkError,
@@ -13,25 +12,7 @@ import {
 } from "@imagekit/next";
 import { IEvent } from "@/database/event.model";
 import { toast } from "react-toastify";
-
-const uploadImage = async (file: File): Promise<string> => {
-  const authRes = await fetch("/api/upload-auth");
-  if (!authRes.ok) {
-    throw new Error("Failed to get upload authentication");
-  }
-  const { token, expire, signature, publicKey } = await authRes.json();
-
-  const uploadResponse = await upload({
-    file,
-    fileName: file.name,
-    token,
-    expire,
-    signature,
-    publicKey,
-  });
-
-  return uploadResponse.url as string;
-};
+import { uploadImage } from "@/lib/uploadImage";
 
 const useFormEvent = (
   mode: "create" | "edit",
@@ -50,6 +31,7 @@ const useFormEvent = (
     touched,
     setFieldValue,
     isSubmitting,
+    resetForm,
   } = useFormik<IFormValues>({
     initialValues: {
       title: "",
@@ -99,12 +81,21 @@ const useFormEvent = (
           imageUrl = await uploadImage(values.image as unknown as File);
         }
 
+        const generateSlug = (title: string): string => {
+          return title
+            .toLowerCase()
+            .trim()
+            .replace(/[^\w\s-]/g, "") // remove special characters like ? or !.
+            .replace(/\s+/g, "-") // replace multiple space with single space
+            .replace(/-+/g, "-"); // replace multiple - character with single 
+        };
+
         const payload = {
           ...values,
           tags: values.tags.split(","),
           image: imageUrl,
           bookings: "0",
-          slug: values.title.toLowerCase().replace(" ", "-"),
+          slug: generateSlug(values.title),
         };
 
         if (mode === "edit") {
@@ -123,6 +114,7 @@ const useFormEvent = (
             error: "Create Event Failed",
           });
         }
+        resetForm();
         closeModal?.();
       } catch (error) {
         if (error instanceof ImageKitInvalidRequestError) {
@@ -194,8 +186,8 @@ const useFormEvent = (
     setFieldValue,
     isSubmitting,
     handleImageChange,
-    handleOpenFileClick
-  }
+    handleOpenFileClick,
+  };
 };
 
 export default useFormEvent;

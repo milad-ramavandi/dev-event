@@ -64,6 +64,7 @@ const FormEvent = ({
               width={24}
               height={24}
               alt="calendar"
+              className="w-6 h-6"
             />
           )}
           <input
@@ -97,6 +98,7 @@ const FormEvent = ({
               width={24}
               height={24}
               alt="calendar"
+              className="w-6 h-6"
             />
           )}
           <input
@@ -186,7 +188,7 @@ const FormEvent = ({
                   src={values.image}
                   fill
                   alt="banner"
-                  className="absolute object-cover rounded-lg"
+                  className="absolute object-cover rounded-lg w-full h-50"
                 />
               ) : (
                 // Show Local Image
@@ -194,7 +196,7 @@ const FormEvent = ({
                   src={URL.createObjectURL(values.image)}
                   fill
                   alt="banner"
-                  className="absolute object-cover rounded-lg"
+                  className="absolute object-cover rounded-lg w-full h-50"
                 />
               )}
             </div>

@@ -55,6 +55,7 @@ const EventsPage = async () => {
                             fill
                             alt={item.title}
                             className="rounded-lg object-cover"
+                            sizes="(max-width: 768px) 20vw, (max-width: 1200px) 10vw, 5vw"
                           />
                         </div>
                         <p className="font-semibold text-lg text-nowrap">

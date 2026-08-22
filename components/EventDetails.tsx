@@ -82,6 +82,7 @@ const EventDetails = async ({
                 alt="calendar"
                 width={17}
                 height={17}
+                className="w-4.25 h-4.25"
               />
               <p>{date}</p>
             </div>
@@ -91,6 +92,7 @@ const EventDetails = async ({
                 alt="time"
                 width={17}
                 height={17}
+                className="w-4.25 h-4.25"
               />
               <p>{time}</p>
             </div>
@@ -100,6 +102,7 @@ const EventDetails = async ({
                 alt="location"
                 width={17}
                 height={17}
+                className="w-4.25 h-4.25"
               />
               <p>{location}</p>
             </div>
@@ -109,6 +112,7 @@ const EventDetails = async ({
                 alt="mode"
                 width={17}
                 height={17}
+                className="w-4.25 h-4.25"
               />
               <p>{mode[0].toUpperCase() + mode.slice(1)}</p>
             </div>
@@ -118,6 +122,7 @@ const EventDetails = async ({
                 alt="audience"
                 width={17}
                 height={17}
+                className="w-4.25 h-4.25"
               />
               <p>{audience}</p>
             </div>
